@@ -22,6 +22,7 @@ const pool = new Pool({
   ssl: true,
 });
 //const client = pool.connect();
+//create table. ct
 app.get("/ct", async (req, res) => {
   try {
     console.log(req);
@@ -41,21 +42,20 @@ app.get("/ct", async (req, res) => {
   }
 });
 
-// Call the insertRecord function to insert the record
+// Call the insertRecord function to insert a record
 app.get("/it", async (req, res) => {
   const client = await pool.connect();
   try {
     // Connect to the database
     //  const client = await pool.connect();
-
     // SQL query for inserting a record
     const insertQuery = `
-      INSERT INTO title (title)
-      VALUES ($1)
+      INSERT INTO title (title,username)
+      VALUES ($1,$2) 
       RETURNING *;`;
-
+    //$1 as parametered way.point to the array index
     // Values to be inserted
-    const values = ["mr"]; // Replace with your actual value
+    const values = ["mq", "mm"]; // Replace with your actual value
 
     // Execute the query
     const result = await client.query(insertQuery, values);
@@ -70,6 +70,19 @@ app.get("/it", async (req, res) => {
   } finally {
     // Close the database connection
     await client.end();
+  }
+});
+const { insertQuery } = require("./routes/dbquery");
+app.get("/insert", async (req, res) => {
+  try {
+    // Print the inserted record
+    console.log("Inserted record:", req.body, "param", req.param, req.query);
+    insertQuery(req, res);
+  } catch (error) {
+    console.error("Error inserting record:", error);
+    res.status(500).json({ error: error });
+  } finally {
+    // Close the database connection
   }
 });
 
