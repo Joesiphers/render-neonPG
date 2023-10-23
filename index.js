@@ -5,15 +5,33 @@ const port = 5002;
 const { Client, Pool } = require("pg");
 const { dbquery } = require("./routes/dbquery");
 
-/*const client = new Client({
-  user: "joed",
-  host: "dpg-cjrufkdm702s738asrgg-a.oregon-postgres.render.com",
-  password: "Ov6GH4LYKiNCkYzDL1bsd6yxZsnRMnwf",
-  port: "5432",
-  database: "reactpg",
-  ssl: true,
-});*/
+const postgres = require("postgres");
+//require("dotenv").config();
+const dbconfig = {
+  host: "ep-frosty-haze-09169370.ap-southeast-1.aws.neon.tech",
+  database: "neondb",
+  username: "Joesiphers",
+  password: "j7ZgVUoK4tPn",
+  port: 5432,
+  ssl: "require",
+  connection: { options: `project=ep-frosty-haze-09169370` },
+};
+const sql = postgres(dbconfig);
+//const pool = new Pool(dbconfig);
+const DATABASE_URL =
+  "ppostgres://Joesiphers:j7ZgVUoK4tPn@ep-frosty-haze-09169370.ap-southeast-1.aws.neon.tech/neondb?options=endpoint%3Dep-frosty-haze-09169370";
 const pool = new Pool({
+  connectionString: DATABASE_URL,
+  ssl: {
+    require: true,
+  },
+});
+async function getPgVersion() {
+  const result = await sql`select version()`;
+  console.log(result);
+}
+//getPgVersion();
+/*const pool = new Pool({
   user: "joed",
   host: "dpg-cjrufkdm702s738asrgg-a.oregon-postgres.render.com",
   password: "Ov6GH4LYKiNCkYzDL1bsd6yxZsnRMnwf",
@@ -21,11 +39,12 @@ const pool = new Pool({
   database: "reactpg",
   ssl: true,
 });
+*/
 //const client = pool.connect();
 //create table. ct
 app.get("/ct", async (req, res) => {
   try {
-    console.log(req);
+    //const client = await pool.connect();
     const client = await pool.connect();
     const query = `
       CREATE TABLE IF NOT EXISTS title (
@@ -34,6 +53,7 @@ app.get("/ct", async (req, res) => {
        )
     `;
     await client.query(query);
+    // await sql(query);
     client.release();
     res.json({ message: "Table created successfully!" });
   } catch (error) {
